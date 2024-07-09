@@ -1,1 +1,1 @@
-# apache-airflow-microsoft-fabric-plugin
+# Apache Airflow Plugin for Microsoft Fabric. 🚀
