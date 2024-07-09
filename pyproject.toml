@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "apache_airflow_microsoft_fabric_plugin"
 version = "v1.0.0-alpha"
@@ -17,7 +21,3 @@ classifiers = [
 
 [project.urls]
 Homepage = "https://github.com/ambika-garg/apache-airflow-microsoft-fabric-plugin.git"
-
-[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
