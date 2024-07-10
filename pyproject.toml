@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "apache_airflow_microsoft_fabric_plugin"
+version = "1.4.0.a0"
+authors = [
+  { name="Ambika Garg", email="ambikagarg1101@gmail.com" },
+]
+description = "A plugin for Apache Airflow to interact with Microsoft Fabric items"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Development Status :: 3 - Alpha",
+    "Environment :: Plugins",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries :: Python Modules"
+]
+
+[project.urls]
+Homepage = "https://github.com/ambika-garg/apache-airflow-microsoft-fabric-plugin.git"

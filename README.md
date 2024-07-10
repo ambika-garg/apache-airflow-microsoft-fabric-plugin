@@ -41,15 +41,18 @@ This operator composes the logic for this plugin. It triggers the Fabric item ru
 Refresh token rotation is a security mechanism that involves replacing the refresh token each time it is used to obtain a new access token. This process enhances security by reducing the risk of stolen tokens being reused indefinitely. 
 
 * #### Xcom Integration: The Fabric run item enriches the Xcom with essential fields for downstream tasks:
-1. `run_id`: Run Id of the Fabric item.
-2. `run_status`: Fabric item run status.
-    * `In Progress`: Item run is in progress.
-    * `Completed`: Item run successfully completed.
-    * `Failed`: Item run failed (details in `refresh_error`).
-    * `Disabled`: Item run is disabled by a selective refresh.
-3. `run_location`: The location of item run status.
+    1. `run_id`: Run Id of the Fabric item.
+    2. `run_status`: Fabric item run status.
+        * `In Progress`: Item run is in progress.
+        * `Completed`: Item run successfully completed.
+        * `Failed`: Item run failed.
+        * `Disabled`: Item run is disabled by a selective refresh.
+    3. `run_location`: The location of item run status.
 
 * #### External Monitoring link: The operator conveniently provides a redirect link to the Microsoft Fabric item run.
+
+* ### Deferable Mode:
+    The operator runs in deferrable mode. The operator is deferred until the target status of the item run is achieved.
 
 ## Sample DAG to use the plugin.
 
@@ -59,7 +62,7 @@ Ready to give it a spin? Check out the sample DAG code below:
 from __future__ import annotations
 
 from airflow import DAG
-from apache_airflow_microsoft_fabric operators.fabric import FabricRunItemOperator
+from apache_airflow_microsoft_fabric.operators.fabric import FabricRunItemOperator
 from airflow.utils.dates import days_ago
 
 default_args = {
