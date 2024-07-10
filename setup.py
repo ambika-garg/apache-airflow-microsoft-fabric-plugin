@@ -9,7 +9,7 @@ README = (HERE / "README.md").read_text()
 
 setup(
     name="apache_airflow_microsoft_fabric_plugin",
-    version="1.0.0a0",  # Alpha release
+    version="1.1.0a0",  # Alpha release
     author="Ambika Garg",
     author_email="ambikagarg1101@gmail.com",
     description="A plugin for Apache Airflow to interact with Microsoft Fabric items",
