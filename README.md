@@ -37,9 +37,12 @@ This operator composes the logic for this plugin. It triggers the Fabric item ru
 * `deferrable`: Boolean. Use the operator in deferrable mode.
 
 ## Features
-* #### Refresh token rotation: Refresh token rotation is a security mechanism that involves replacing the refresh token each time it is used to obtain a new access token. This process enhances security by reducing the risk of stolen tokens being reused indefinitely. 
+* #### Refresh token rotation:
+  Refresh token rotation is a security mechanism that involves replacing the refresh token each time it is used to obtain a new access token. 
+  This process enhances security by reducing the risk of stolen tokens being reused indefinitely. 
 
-* #### Xcom Integration: The Fabric run item enriches the Xcom with essential fields for downstream tasks:
+* #### Xcom Integration:
+  The Fabric run item enriches the Xcom with essential fields for downstream tasks:
     1. `run_id`: Run Id of the Fabric item.
     2. `run_status`: Fabric item run status.
         * `In Progress`: Item run is in progress.
@@ -48,9 +51,11 @@ This operator composes the logic for this plugin. It triggers the Fabric item ru
         * `Disabled`: Item run is disabled by a selective refresh.
     3. `run_location`: The location of item run status.
 
-* #### External Monitoring link: The operator conveniently provides a redirect link to the Microsoft Fabric item run.
+* #### External Monitoring link:
+  The operator conveniently provides a redirect link to the Microsoft Fabric item run.
 
-* ### Deferable Mode: The operator runs in deferrable mode. The operator is deferred until the target status of the item run is achieved.
+* ### Deferable Mode:
+  The operator runs in deferrable mode. The operator is deferred until the target status of the item run is achieved.
 
 ## Sample DAG to use the plugin.
 
