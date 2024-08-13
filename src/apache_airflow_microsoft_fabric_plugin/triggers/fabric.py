@@ -38,7 +38,7 @@ class FabricTrigger(BaseTrigger):
     def serialize(self):
         """Serialize the FabricTrigger instance."""
         return (
-            "airflow.providers.microsoft.powerbi.triggers.fabric.FabricTrigger",
+            "apache_airflow_microsoft_fabric_plugin.triggers.fabric.FabricTrigger",
             {
                 "fabric_conn_id": self.fabric_conn_id,
                 "item_run_id": self.item_run_id,

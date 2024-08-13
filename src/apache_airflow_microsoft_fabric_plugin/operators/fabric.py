@@ -84,6 +84,7 @@ class FabricRunItemOperator(BaseOperator):
         "item_id",
         "job_type",
         "fabric_conn_id",
+        "job_params",
     )
     template_fields_renderers = {"parameters": "json"}
 
@@ -100,7 +101,10 @@ class FabricRunItemOperator(BaseOperator):
         wait_for_termination: bool = True,
         timeout: int = 60 * 60 * 24 * 7,
         check_interval: int = 60,
+        max_retries: int = 5,
+        retry_delay: int = 1,
         deferrable: bool = conf.getboolean("operators", "default_deferrable", fallback=False),
+        job_params: dict = None,
         **kwargs,
     ) -> None:
         super().__init__(**kwargs)
@@ -111,7 +115,10 @@ class FabricRunItemOperator(BaseOperator):
         self.wait_for_termination = wait_for_termination
         self.timeout = timeout
         self.check_interval = check_interval
+        self.max_retries = max_retries
+        self.retry_delay = retry_delay
         self.deferrable = deferrable
+        self.job_params = job_params
 
     @cached_property
     def hook(self) -> FabricHook:
@@ -120,11 +127,25 @@ class FabricRunItemOperator(BaseOperator):
 
     def execute(self, context: Context) -> None:
         response = self.hook.run_fabric_item(
-            workspace_id=self.workspace_id, item_id=self.item_id, job_type=self.job_type
+            workspace_id=self.workspace_id, item_id=self.item_id, job_type=self.job_type, job_params=self.job_params
         )
         self.location = response.headers["Location"]
 
-        item_run_details = self.hook.get_item_run_details(self.location)
+        attempt = 0
+        item_run_details = None
+
+        while attempt < self.max_retries and item_run_details is None:
+            attempt += 1
+            item_run_details_response = self.hook.get_item_run_details(self.location)
+
+            if item_run_details_response.get("failureReason", dict()) is not None and item_run_details_response.get("failureReason", dict()).get("errorCode") == "RequestExecutionFailed":
+                self.log.info(f"Item run details not available yet. Retrying in {self.retry_delay} seconds...")
+                time.sleep(self.retry_delay)
+            else:
+                item_run_details = item_run_details_response
+
+        if item_run_details is None:
+            raise FabricRunItemException("Item run details could not be retreived.")
 
         self.item_run_status = item_run_details["status"]
         self.item_run_id = item_run_details["id"]

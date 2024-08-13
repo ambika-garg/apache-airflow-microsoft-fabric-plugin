@@ -110,6 +110,7 @@ class FabricHook(BaseHook):
         connection = self.get_connection(self.conn_id)
         tenant_id = connection.extra_dejson.get("tenantId")
         client_id = connection.login
+        client_secret = connection.extra_dejson.get("clientSecret")
         refresh_token = connection.password
         scopes = FABRIC_SCOPES
 
@@ -119,6 +120,8 @@ class FabricHook(BaseHook):
             "refresh_token": refresh_token,
             "scope": scopes,
         }
+        if client_secret:
+            data["client_secret"] = client_secret
 
         response = self._send_request(
             "POST",
@@ -185,20 +188,24 @@ class FabricHook(BaseHook):
 
         raise AirflowException(f"Failed to get item details for item {item_id} in workspace {workspace_id}.")
 
-    def run_fabric_item(self, workspace_id: str, item_id: str, job_type: str) -> str:
+    def run_fabric_item(self, workspace_id: str, item_id: str, job_type: str, job_params: dict = None) -> str:
         """
         Run a Fabric item.
 
         :param workspace_id: The workspace Id in which the item is located.
         :param item_id: The item Id. To check available items, Refer to: https://learn.microsoft.com/rest/api/fabric/admin/items/list-items?tabs=HTTP#itemtype.
         :param job_type: The type of job to run. For running a notebook, this should be "RunNotebook".
+        :param job_params: An optional dictionary of parameters to pass to the job.
 
         :return: The run Id of item.
         """
         url = f"{self._base_url}/{self._api_version}/workspaces/{workspace_id}/items/{item_id}/jobs/instances?jobType={job_type}"
 
         headers = self.get_headers()
-        response = self._send_request("POST", url, headers=headers)
+
+        data = {"executionData": {"parameters": job_params}} if job_params else {}
+
+        response = self._send_request("POST", url, headers=headers, json=data)
 
         if response.ok:
             return response
@@ -308,6 +315,7 @@ class FabricAsyncHook(FabricHook):
         connection = await sync_to_async(self.get_connection)(self.conn_id)
         tenant_id = connection.extra_dejson.get("tenantId")
         client_id = connection.login
+        client_secret = connection.extra_dejson.get("clientSecret")
         refresh_token = connection.password
         scopes = FABRIC_SCOPES
 
@@ -317,6 +325,9 @@ class FabricAsyncHook(FabricHook):
             "refresh_token": refresh_token,
             "scope": scopes,
         }
+        if client_secret:
+            data["client_secret"] = client_secret
+
         response = await self._send_request(
             "POST",
             f"https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/token",
