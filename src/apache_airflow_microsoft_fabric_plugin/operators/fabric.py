@@ -218,13 +218,8 @@ class FabricRunItemOperator(BaseOperator):
 
         Relies on trigger to throw an exception, otherwise it assumes execution was successful.
         """
-        """
-        Return immediately - callback for when the trigger fires.
-
-        Relies on trigger to throw an exception, otherwise it assumes execution was successful.
-        """
         if event:
+            self.log.info(event["message"])
+            context["ti"].xcom_push(key="run_status", value=event["item_run_status"])
             if event["status"] == "error":
                 raise AirflowException(event["message"])
-            self.log.info(event["message"])
-            context["ti"].xcom_push(key="run_status", value=event["status"])
