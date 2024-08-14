@@ -1,7 +1,7 @@
 # Apache Airflow Plugin for Microsoft Fabric Plugin. 🚀
 
 ## Introduction
-A Python package that helps Data and Analytics engineers trigger run on demand job items of [Microsoft Fabric](https://www.microsoft.com/en-us/microsoft-fabric) in Apache Airflow DAGs. 
+A Python package that helps Data and Analytics engineers trigger run on demand job items of [Microsoft Fabric](https://www.microsoft.com/en-us/microsoft-fabric) in Apache Airflow DAGs.
 
 [Microsoft Fabric](https://www.microsoft.com/microsoft-fabric) is an end-to-end analytics and data platform designed for enterprises that require a unified solution. It encompasses data movement, processing, ingestion, transformation, real-time event routing, and report building. It offers a comprehensive suite of services including Data Engineering, Data Factory, Data Science, Real-Time Analytics, Data Warehouse, and Databases.
 
@@ -10,7 +10,7 @@ A Python package that helps Data and Analytics engineers trigger run on demand j
 ### Prerequisities
 Before diving in,
 * The plugin supports the <strong>authentication using user tokens</strong>. Tenant level admin account must enable the setting <strong>Allow user consent for apps</strong>. Refer to: [Configure user consent](https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/configure-user-consent?pivots=portal)
-* Create a Microsoft Entra Id app if you don’t have one. Refer to: Doc 
+* Create a Microsoft Entra Id app if you don’t have one. Refer to: Doc
 * You must have [Refresh token](https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-auth-code-flow#refresh-the-access-token).
 
 
@@ -20,7 +20,8 @@ Since custom connection forms aren't feasible in Apache Airflow plugins, use can
 3. `Login`: The Client ID of your service principal.
 4. `Password`: The refresh token fetched using Microsoft OAuth.
 5. `Extra`: {
-    "tenantId": The Tenant Id of your service principal.
+    "tenantId": The Tenant Id of your service principal,
+    "clientSecret": (optional) The Client Secret for your Entra ID App
 }
 
 ## Operators
@@ -31,15 +32,18 @@ This operator composes the logic for this plugin. It triggers the Fabric item ru
 * `item_id`: The Item Id. i.e Notebook and Pipeline.
 * `fabric_conn_id`: Connection Id for Fabric.
 * `job_type`: "RunNotebook" or "Pipeline".
-* `wait_for_termination`: (Default value: True) Wait until the run item. 
-* `timeout`: Time in seconds to wait for the pipeline or notebook. Used only if `wait_for_termination` is True.
-* `check_interval`: Boolean. Number of seconds to wait before rechecking the refresh status.
+* `wait_for_termination`: (Default value: True) Wait until the run item.
+* `timeout`: int (Default value: 60 * 60 * 24 * 7). Time in seconds to wait for the pipeline or notebook. Used only if `wait_for_termination` is True.
+* `check_interval`: int (Default value: 60s). Time in seconds to wait before rechecking the refresh status.
+* `max_retries`: int (Default value: 5 retries). Max number of times to poll the API for a valid response after starting a job.
+* `retry_delay`: int (Default value: 1s). Polling retry delay.
 * `deferrable`: Boolean. Use the operator in deferrable mode.
+* `job_params`: Dict. Parameters to pass into the job.
 
 ## Features
 * #### Refresh token rotation:
-  Refresh token rotation is a security mechanism that involves replacing the refresh token each time it is used to obtain a new access token. 
-  This process enhances security by reducing the risk of stolen tokens being reused indefinitely. 
+  Refresh token rotation is a security mechanism that involves replacing the refresh token each time it is used to obtain a new access token.
+  This process enhances security by reducing the risk of stolen tokens being reused indefinitely.
 
 * #### Xcom Integration:
   The Fabric run item enriches the Xcom with essential fields for downstream tasks:

@@ -38,7 +38,7 @@ class FabricTrigger(BaseTrigger):
     def serialize(self):
         """Serialize the FabricTrigger instance."""
         return (
-            "airflow.providers.microsoft.powerbi.triggers.fabric.FabricTrigger",
+            "apache_airflow_microsoft_fabric_plugin.triggers.fabric.FabricTrigger",
             {
                 "fabric_conn_id": self.fabric_conn_id,
                 "item_run_id": self.item_run_id,
@@ -63,24 +63,24 @@ class FabricTrigger(BaseTrigger):
                         workspace_id=self.workspace_id,
                         item_id=self.item_id,
                     )
-                    item_run_staus = item_run_details["status"]
-                    if item_run_staus == FabricRunItemStatus.COMPLETED:
+                    item_run_status = item_run_details["status"]
+                    if item_run_status == FabricRunItemStatus.COMPLETED:
                         yield TriggerEvent(
                             {
                                 "status": "success",
-                                "message": f"The item run {self.item_run_id} has status {item_run_staus}.",
+                                "message": f"The item run {self.item_run_id} has status {item_run_status}.",
                                 "run_id": self.item_run_id,
-                                "item_run_status": item_run_staus,
+                                "item_run_status": item_run_status,
                             }
                         )
                         return
-                    elif item_run_staus in FabricRunItemStatus.FAILURE_STATES:
+                    elif item_run_status in FabricRunItemStatus.FAILURE_STATES:
                         yield TriggerEvent(
                             {
                                 "status": "error",
-                                "message": f"The item run {self.item_run_id} has status {item_run_staus}.",
+                                "message": f"The item run {self.item_run_id} has status {item_run_status}.",
                                 "run_id": self.item_run_id,
-                                "item_run_status": item_run_staus,
+                                "item_run_status": item_run_status,
                             }
                         )
                         return
@@ -88,7 +88,7 @@ class FabricTrigger(BaseTrigger):
                     self.log.info(
                         "Sleeping for %s. The pipeline state is %s.",
                         self.check_interval,
-                        item_run_staus,
+                        item_run_status,
                     )
                     await asyncio.sleep(self.check_interval)
                 except Exception as error:
@@ -106,7 +106,7 @@ class FabricTrigger(BaseTrigger):
             yield TriggerEvent(
                 {
                     "status": "error",
-                    "message": f"Timeout reached: The item run {self.item_run_id} has {item_run_staus}.",
+                    "message": f"Timeout reached: The item run {self.item_run_id} has {item_run_status}.",
                     "run_id": self.item_run_id,
                 }
             )
