@@ -20,9 +20,12 @@ Since custom connection forms aren't feasible in Apache Airflow plugins, use can
 3. `Login`: The Client ID of your service principal.
 4. `Password`: The refresh token fetched using Microsoft OAuth.
 5. `Extra`: {
-    "tenantId": The Tenant Id of your service principal,
-    "clientSecret": (optional) The Client Secret for your Entra ID App
+    "tenantId": "The Tenant Id of your service principal",
+    "clientSecret": "(optional) The Client Secret for your Entra ID App"
+    "scopes": "(optional) Scopes you used to fetch the refresh token" 
 }
+> **_NOTE:_** Default scopes applied are: https://api.fabric.microsoft.com/Item.Execute.All, https://api.fabric.microsoft.com/Item.ReadWrite.All, offline_access, openid, profile
+
 
 ## Operators
 ### FabricRunItemOperator
@@ -99,4 +102,8 @@ with DAG(
 ```
 Feel free to tweak and tailor this DAG to suit your needs!
 
-🌟 Please feel free to share any thoughts or suggestions you have.
+## Contributing
+We welcome any contributions:
+
+- Report all enhancements, bugs, and tasks as [GitHub issues](https://github.com/ambika-garg/apache-airflow-microsoft-fabric-plugin/issues)
+- Provide fixes or enhancements by opening pull requests in GitHub.

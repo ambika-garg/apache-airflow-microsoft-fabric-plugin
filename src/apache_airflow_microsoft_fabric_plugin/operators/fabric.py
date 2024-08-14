@@ -16,7 +16,6 @@
 # under the License.
 from __future__ import annotations
 
-import logging
 import time
 import warnings
 from functools import cached_property
@@ -36,8 +35,6 @@ from airflow.utils.decorators import apply_defaults
 if TYPE_CHECKING:
     from airflow.models.taskinstancekey import TaskInstanceKey
     from airflow.utils.context import Context
-
-logger = logging.getLogger(__name__)
 
 
 class FabricRunItemLink(BaseOperatorLink):
@@ -126,6 +123,7 @@ class FabricRunItemOperator(BaseOperator):
         return FabricHook(fabric_conn_id=self.fabric_conn_id)
 
     def execute(self, context: Context) -> None:
+        # Execute the item run
         response = self.hook.run_fabric_item(
             workspace_id=self.workspace_id, item_id=self.item_id, job_type=self.job_type, job_params=self.job_params
         )

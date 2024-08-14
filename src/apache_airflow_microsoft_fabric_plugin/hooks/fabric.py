@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import logging
 import time
 from typing import Any, Callable
 
@@ -13,7 +12,6 @@ from airflow.hooks.base import BaseHook
 from airflow.models import Connection
 from airflow.utils.db import provide_session
 
-logger = logging.getLogger(__name__)
 FABRIC_SCOPES = "https://api.fabric.microsoft.com/Item.Execute.All https://api.fabric.microsoft.com/Item.ReadWrite.All offline_access openid profile"
 
 
@@ -111,8 +109,8 @@ class FabricHook(BaseHook):
         tenant_id = connection.extra_dejson.get("tenantId")
         client_id = connection.login
         client_secret = connection.extra_dejson.get("clientSecret")
+        scopes = connection.extra_dejson.get("scopes", FABRIC_SCOPES)
         refresh_token = connection.password
-        scopes = FABRIC_SCOPES
 
         data = {
             "grant_type": "refresh_token",
@@ -317,7 +315,7 @@ class FabricAsyncHook(FabricHook):
         client_id = connection.login
         client_secret = connection.extra_dejson.get("clientSecret")
         refresh_token = connection.password
-        scopes = FABRIC_SCOPES
+        scopes = connection.extra_dejson.get("scopes", FABRIC_SCOPES)
 
         data = {
             "grant_type": "refresh_token",
