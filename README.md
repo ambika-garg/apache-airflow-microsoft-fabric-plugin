@@ -7,11 +7,17 @@ A Python package that helps Data and Analytics engineers trigger run on demand j
 
 ## How to Use
 
+### Install the Plugin 
+Pypi package: https://pypi.org/project/apache-airflow-microsoft-fabric-plugin/
+```bash 
+pip install apache-airflow-microsoft-fabric-plugin
+```
+
 ### Prerequisities
 Before diving in,
 * The plugin supports the <strong>authentication using user tokens</strong>. Tenant level admin account must enable the setting <strong>Allow user consent for apps</strong>. Refer to: [Configure user consent](https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/configure-user-consent?pivots=portal)
-* Create a Microsoft Entra Id app if you don’t have one. Refer to: Doc
-* You must have [Refresh token](https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-auth-code-flow#refresh-the-access-token).
+* [Create a Microsoft Entra Id app](https://learn.microsoft.com/entra/identity-platform/quickstart-register-app?tabs=certificate) if you don’t have one.
+* You must have [Refresh token](https://learn.microsoft.com/entra/identity-platform/v2-oauth2-auth-code-flow#refresh-the-access-token).
 
 
 Since custom connection forms aren't feasible in Apache Airflow plugins, use can use `Generic` connection type. Here's what you need to store:
