@@ -6,6 +6,7 @@ from typing import Any, Callable
 import aiohttp
 import requests
 from asgiref.sync import sync_to_async
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 from airflow.exceptions import AirflowException
 from airflow.hooks.base import BaseHook
@@ -154,6 +155,7 @@ class FabricHook(BaseHook):
             "Authorization": f"Bearer {self._get_token()}",
         }
 
+    @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, max=10))
     def get_item_run_details(self, location: str) -> None:
         """
         Get details of the item run instance.
@@ -164,7 +166,10 @@ class FabricHook(BaseHook):
         response = self._send_request("GET", location, headers=headers)
 
         if response.ok:
-            return response.json()
+            item_run_details = response.json()
+            item_failure_reason = item_run_details.get("failureReason", dict())
+            if item_failure_reason is not None and item_failure_reason.get("errorCode") in ["RequestExecutionFailed", "NotFound"]:
+                raise FabricRunItemException("Unable to get item run details.")
         response.raise_for_status()
 
     def get_item_details(self, workspace_id: str, item_id: str) -> dict:

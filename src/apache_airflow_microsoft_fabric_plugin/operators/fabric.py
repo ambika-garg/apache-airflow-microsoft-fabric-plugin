@@ -128,31 +128,13 @@ class FabricRunItemOperator(BaseOperator):
             workspace_id=self.workspace_id, item_id=self.item_id, job_type=self.job_type, job_params=self.job_params
         )
         self.location = response.headers["Location"]
-
-        attempt = 0
-        item_run_details = None
-
-        while attempt < self.max_retries and item_run_details is None:
-            attempt += 1
-            item_run_details_response = self.hook.get_item_run_details(self.location)
-
-            item_failure_reason = item_run_details_response.get("failureReason", dict())
-            if item_failure_reason is not None and item_failure_reason.get("errorCode") in ["RequestExecutionFailed", "NotFound"]:
-                self.log.info(f"Item run details not available yet. Retrying in {self.retry_delay} seconds...")
-                time.sleep(self.retry_delay)
-            else:
-                item_run_details = item_run_details_response
-
-        if item_run_details is None:
-            raise FabricRunItemException("Item run details could not be retreived.")
-
+        item_run_details = self.hook.get_item_run_details(self.location)
+                
         self.item_run_status = item_run_details["status"]
         self.item_run_id = item_run_details["id"]
 
         # Push the run id to XCom regardless of what happen during execution
         context["ti"].xcom_push(key="run_id", value=self.item_run_id)
-        context["ti"].xcom_push(key="run_status", value=self.item_run_status)
-        context["ti"].xcom_push(key="location", value=self.location)
 
         if self.wait_for_termination:
             if self.deferrable is False:
@@ -171,8 +153,6 @@ class FabricRunItemOperator(BaseOperator):
                     )
             else:
                 end_time = time.monotonic() + self.timeout
-                item_run_details = self.hook.get_item_run_details(self.location)
-                self.item_run_status = item_run_details["status"]
 
                 if self.item_run_status not in FabricRunItemStatus.TERMINAL_STATUSES:
                     self.log.info("Deferring the task to wait for item run to complete.")
