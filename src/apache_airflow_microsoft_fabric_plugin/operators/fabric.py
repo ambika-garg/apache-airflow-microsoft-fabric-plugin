@@ -135,6 +135,7 @@ class FabricRunItemOperator(BaseOperator):
 
         # Push the run id to XCom regardless of what happen during execution
         context["ti"].xcom_push(key="run_id", value=self.item_run_id)
+        context["ti"].xcom_push(key="location", value=self.location)         
 
         if self.wait_for_termination:
             if self.deferrable is False:
