@@ -84,10 +84,14 @@ class FabricHook(BaseHook):
         self,
         *,
         fabric_conn_id: str = default_conn_name,
+        max_retries: int = 5,
+        retry_delay: int = 1,
     ):
         self.conn_id = fabric_conn_id
         self._api_version = "v1"
         self._base_url = "https://api.fabric.microsoft.com"
+        self.max_retries = max_retries
+        self.retry_delay = retry_delay
         self.cached_access_token: dict[str, str | None | int] = {"access_token": None, "expiry_time": 0}
         super().__init__()
 
@@ -162,6 +166,7 @@ class FabricHook(BaseHook):
 
         :param location: The location of the item instance.
         """
+    
         headers = self.get_headers()
         response = self._send_request("GET", location, headers=headers)
 
