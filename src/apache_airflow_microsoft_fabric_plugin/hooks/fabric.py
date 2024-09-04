@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import time
 from typing import Any, Callable
-
 import aiohttp
 import requests
 from asgiref.sync import sync_to_async
+from tenacity import retry, stop_after_attempt, wait_exponential
+
 from airflow.exceptions import AirflowException
 from airflow.hooks.base import BaseHook
 from airflow.models import Connection
