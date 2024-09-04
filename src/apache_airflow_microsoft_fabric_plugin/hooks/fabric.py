@@ -174,6 +174,7 @@ class FabricHook(BaseHook):
             item_failure_reason = item_run_details.get("failureReason", dict())
             if item_failure_reason is not None and item_failure_reason.get("errorCode") in ["RequestExecutionFailed", "NotFound"]:
                 raise FabricRunItemException("Unable to get item run details.")
+            return item_run_details
         response.raise_for_status()
 
     def get_item_details(self, workspace_id: str, item_id: str) -> dict:
