@@ -103,7 +103,7 @@ class FabricTrigger(BaseTrigger):
                     self.item_run_id,
                 )
                 await hook.cancel_item_run(
-                    run_id=self.item_run_id,
+                    item_run_id=self.item_run_id,
                     workspace_id=self.workspace_id,
                     item_id=self.item_id,
                 )
