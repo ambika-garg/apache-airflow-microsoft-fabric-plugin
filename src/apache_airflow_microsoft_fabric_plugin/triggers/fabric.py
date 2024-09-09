@@ -54,7 +54,7 @@ class FabricTrigger(BaseTrigger):
 
         try:
             while self.end_time > time.monotonic():
-                item_run_details = await hook.get_item_run_details(
+                item_run_details = await hook.async_get_item_run_details(
                     item_run_id=self.item_run_id,
                     workspace_id=self.workspace_id,
                     item_id=self.item_id,
@@ -122,6 +122,7 @@ class FabricTrigger(BaseTrigger):
                         "status": "error",
                         "message": str(error),
                         "run_id": self.item_run_id,
+                        "item_run_status": "unknown",
                     }
                 )
                 return
