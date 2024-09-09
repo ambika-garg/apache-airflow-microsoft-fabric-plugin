@@ -22,7 +22,6 @@ from functools import cached_property
 from typing import TYPE_CHECKING, Sequence
 
 from airflow.configuration import conf
-from airflow.exceptions import AirflowException
 from airflow.models import BaseOperator, BaseOperatorLink, XCom
 from apache_airflow_microsoft_fabric_plugin.hooks.fabric import (
     FabricHook,
@@ -98,8 +97,6 @@ class FabricRunItemOperator(BaseOperator):
         wait_for_termination: bool = True,
         timeout: int = 60 * 60 * 24 * 7,
         check_interval: int = 60,
-        max_retries: int = 5,
-        retry_delay: int = 1,
         deferrable: bool = conf.getboolean("operators", "default_deferrable", fallback=False),
         job_params: dict = None,
         **kwargs,
@@ -112,22 +109,19 @@ class FabricRunItemOperator(BaseOperator):
         self.wait_for_termination = wait_for_termination
         self.timeout = timeout
         self.check_interval = check_interval
-        self.max_retries = max_retries
-        self.retry_delay = retry_delay
         self.deferrable = deferrable
         self.job_params = job_params
 
     @cached_property
     def hook(self) -> FabricHook:
         """Create and return the FabricHook (cached)."""
-        return FabricHook(fabric_conn_id=self.fabric_conn_id, max_retries=self.max_retries, retry_delay=self.retry_delay)
+        return FabricHook(fabric_conn_id=self.fabric_conn_id)
 
     def execute(self, context: Context) -> None:
         # Execute the item run
-        response = self.hook.run_fabric_item(
+        self.location = self.hook.run_fabric_item(
             workspace_id=self.workspace_id, item_id=self.item_id, job_type=self.job_type, job_params=self.job_params
         )
-        self.location = response.headers["Location"]
         item_run_details = self.hook.get_item_run_details(self.location)
                 
         self.item_run_status = item_run_details["status"]
@@ -202,4 +196,4 @@ class FabricRunItemOperator(BaseOperator):
             self.log.info(event["message"])
             context["ti"].xcom_push(key="run_status", value=event["item_run_status"])
             if event["status"] == "error":
-                raise AirflowException(event["message"])
+                raise FabricRunItemException(str(event["message"]))
