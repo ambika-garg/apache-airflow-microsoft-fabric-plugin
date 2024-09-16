@@ -97,6 +97,8 @@ class FabricRunItemOperator(BaseOperator):
         wait_for_termination: bool = True,
         timeout: int = 60 * 60 * 24 * 7,
         check_interval: int = 60,
+        max_retries: int = 5,
+        retry_delay: int = 1,
         deferrable: bool = conf.getboolean("operators", "default_deferrable", fallback=False),
         job_params: dict = None,
         **kwargs,
@@ -109,13 +111,15 @@ class FabricRunItemOperator(BaseOperator):
         self.wait_for_termination = wait_for_termination
         self.timeout = timeout
         self.check_interval = check_interval
+        self.max_retries = max_retries
+        self.retry_delay = retry_delay
         self.deferrable = deferrable
         self.job_params = job_params
 
     @cached_property
     def hook(self) -> FabricHook:
         """Create and return the FabricHook (cached)."""
-        return FabricHook(fabric_conn_id=self.fabric_conn_id)
+        return FabricHook(fabric_conn_id=self.fabric_conn_id, max_retries=self.max_retries, retry_delay=self.retry_delay)
 
     def execute(self, context: Context) -> None:
         # Execute the item run
@@ -123,13 +127,13 @@ class FabricRunItemOperator(BaseOperator):
             workspace_id=self.workspace_id, item_id=self.item_id, job_type=self.job_type, job_params=self.job_params
         )
         item_run_details = self.hook.get_item_run_details(self.location)
-                
+
         self.item_run_status = item_run_details["status"]
         self.item_run_id = item_run_details["id"]
 
         # Push the run id to XCom regardless of what happen during execution
         context["ti"].xcom_push(key="run_id", value=self.item_run_id)
-        context["ti"].xcom_push(key="location", value=self.location)         
+        context["ti"].xcom_push(key="location", value=self.location)
 
         if self.wait_for_termination:
             if self.deferrable is False:
