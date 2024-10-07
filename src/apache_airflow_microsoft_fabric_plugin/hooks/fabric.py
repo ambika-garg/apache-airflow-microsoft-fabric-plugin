@@ -50,6 +50,9 @@ class FabricHook(BaseHook):
 
     :param fabric_conn_id: Airflow Connection ID that contains the connection
         information for the Fabric account used for authentication.
+    :param max_retries: The maximum number of retries to make for the request.
+    :param retry_delay: The delay between retries in seconds. This is the base value for exponential backoff.
+    :param max_wait_time: The maximum time to wait for the item run details.
     """  # noqa: D205
 
     conn_type: str = "fabric"
@@ -85,13 +88,15 @@ class FabricHook(BaseHook):
         *,
         fabric_conn_id: str = default_conn_name,
         max_retries: int = 5,
-        retry_delay: int = 1
+        retry_delay: int = 1,
+        max_wait_time: int = 10,
     ):
         self.conn_id = fabric_conn_id
         self._api_version = "v1"
         self._base_url = "https://api.fabric.microsoft.com"
         self.max_retries = max_retries
         self.retry_delay = retry_delay
+        self.max_wait_time = max_wait_time
         self.cached_access_token: dict[str, str | None | int] = {"access_token": None, "expiry_time": 0}
         super().__init__()
 
@@ -174,7 +179,10 @@ class FabricHook(BaseHook):
 
         @retry(
             stop=stop_after_attempt(self.max_retries),
-            wait=wait_exponential(multiplier=self.retry_delay / 2, max=10)
+            wait=wait_exponential(multiplier=self.retry_delay, max=self.max_wait_time),
+            before_sleep=lambda retry_state: self.log.error(
+                "Failed to fetch item run details. Attempt No, %s, Retry after: %s", retry_state.attempt_number, retry_state.idle_for
+            )
         )
         def _internal_get_item_run_details():
             headers = self.get_headers()

@@ -119,7 +119,7 @@ class FabricRunItemOperator(BaseOperator):
     @cached_property
     def hook(self) -> FabricHook:
         """Create and return the FabricHook (cached)."""
-        return FabricHook(fabric_conn_id=self.fabric_conn_id, max_retries=self.max_retries, retry_delay=self.retry_delay)
+        return FabricHook(fabric_conn_id=self.fabric_conn_id, max_retries=self.max_retries, retry_delay=self.retry_delay, max_wait_time=self.timeout)
 
     def execute(self, context: Context) -> None:
         # Execute the item run
