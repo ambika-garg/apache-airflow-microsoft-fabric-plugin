@@ -174,7 +174,7 @@ class FabricHook(BaseHook):
 
         @retry(
             stop=stop_after_attempt(self.max_retries),
-            wait=wait_exponential(multiplier=self.retry_delay / 2, max=10)
+            wait=wait_exponential(multiplier=1, min=self.retry_delay, max=10)
         )
         def _internal_get_item_run_details():
             headers = self.get_headers()
