@@ -27,7 +27,7 @@ Since custom connection forms aren't feasible in Apache Airflow plugins, use can
 4. `Password`: The refresh token fetched using Microsoft OAuth.
 5. `Extra`: {
     "tenantId": "The Tenant Id of your service principal",
-    "clientSecret": "(optional) The Client Secret for your Entra ID App"
+    "clientSecret": "(Mandatory) The Client Secret for your Entra ID App"
     "scopes": "(optional) Scopes you used to fetch the refresh token" 
 }
 > **_NOTE:_** Default scopes applied are: https://api.fabric.microsoft.com/Item.Execute.All, https://api.fabric.microsoft.com/Item.ReadWrite.All, offline_access, openid, profile
